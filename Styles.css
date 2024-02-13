@@ -1,10 +1,33 @@
 body {
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    overflow: hidden; /* Hide scroll bars */
 }
 
 canvas {
     display: block;
-    background-color: #000;
+    margin: 0 auto; /* Center the canvas horizontally */
+    background-color: black; /* Set background color to black */
+}
+
+#mainMenu {
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#playButton {
+    font-size: 24px;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#playButton:hover {
+    background-color: #45a049;
 }
