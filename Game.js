@@ -6,6 +6,8 @@ let gameOver = false;
 let score = 0;
 let bulletCooldown = 0; // Added variable for bullet cooldown
 const bulletDelay = 1000 / 6; // Delay between bullets (in milliseconds) - 6 bullets per second
+let lastSpawnTime = 0;
+let startTime = Date.now(); // Added variable to track start time
 
 // Main menu initialization
 function initMainMenu() {
@@ -28,7 +30,7 @@ function initGame() {
         x: canvas.width / 2,
         y: canvas.height - 50,
         size: 30,
-        speed: 5
+        speed: 5 * 1.04 // Increase x velocity by 4%
     };
 
     bullets = [];
@@ -37,6 +39,8 @@ function initGame() {
     lastTime = 0;
     gameOver = false;
     score = 0;
+    lastSpawnTime = 0;
+    startTime = Date.now(); // Reset start time
 
     // Start game loop
     requestAnimationFrame(gameLoop);
@@ -75,16 +79,19 @@ function update(deltaTime) {
     // Remove bullets that are out of bounds
     bullets = bullets.filter(bullet => bullet.y > 0);
 
-    // Spawn enemies
-    if (Math.random() < 0.02) {
-        let enemy = {
-            x: Math.random() * canvas.width,
-            y: -30,
-            width: 30,
-            height: 30,
-            speed: 2
-        };
-        enemies.push(enemy);
+    // Spawn enemies every 4 seconds
+    if (Date.now() - lastSpawnTime >= 4000) {
+        for (let i = 0; i < 4; i++) {
+            let enemy = {
+                x: Math.random() * canvas.width,
+                y: -30,
+                width: 30,
+                height: 30,
+                speed: 2
+            };
+            enemies.push(enemy);
+        }
+        lastSpawnTime = Date.now();
     }
 
     // Update enemies position
@@ -99,6 +106,12 @@ function update(deltaTime) {
             player.y + player.size > enemy.y
         ) {
             gameOver = true;
+        }
+
+        // Check if enemy passed player
+        if (enemy.y > canvas.height) {
+            enemies.splice(enemies.indexOf(enemy), 1); // Remove enemy
+            score -= 10; // Subtract 10 points
         }
     });
 
@@ -154,12 +167,22 @@ function render() {
     ctx.font = "20px Arial";
     ctx.fillText("Score: " + score, canvas.width - 100, 30);
 
+    // Draw elapsed time
+    ctx.fillText("Time: " + formatTime((Date.now() - startTime) / 1000), 10, 30);
+
     // Game over text
     if (gameOver) {
         ctx.fillStyle = "#fff";
         ctx.font = "48px Arial";
         ctx.fillText("Game Over", canvas.width / 2 - 120, canvas.height / 2);
     }
+}
+
+// Format time in MM:SS format
+function formatTime(seconds) {
+    let minutes = Math.floor(seconds / 60);
+    let remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
 }
 
 // Game loop
