@@ -105,11 +105,12 @@ function update(deltaTime) {
     // Check for collisions between bullets and enemies
     bullets.forEach(bullet => {
         enemies.forEach(enemy => {
+            // Check if bullet collides with enemy
             if (
-                bullet.x > enemy.x &&
-                bullet.x < enemy.x + enemy.width &&
-                bullet.y > enemy.y &&
-                bullet.y < enemy.y + enemy.height
+                bullet.x + bullet.radius > enemy.x &&
+                bullet.x - bullet.radius < enemy.x + enemy.width &&
+                bullet.y + bullet.radius > enemy.y &&
+                bullet.y - bullet.radius < enemy.y + enemy.height
             ) {
                 // Collision detected, remove bullet and enemy
                 bullets.splice(bullets.indexOf(bullet), 1);
@@ -138,7 +139,7 @@ function render() {
     ctx.fillStyle = "#fff";
     bullets.forEach(bullet => {
         ctx.beginPath();
-        ctx.arc(bullet.x, bullet.y, bullet.radius * 1.04, 0, Math.PI * 2); // Increase radius by 4%
+        ctx.arc(bullet.x, bullet.y, bullet.radius * 1.08, 0, Math.PI * 2); // Increase radius by 8%
         ctx.fill();
     });
 
