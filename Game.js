@@ -30,7 +30,9 @@ function initGame() {
         x: canvas.width / 2,
         y: canvas.height - 50,
         size: 30,
-        speed: 5 * 1.04 // Increase x velocity by 4%
+        speed: 5 * 1.04, // Increase x velocity by 4%
+        angle: 0, // Initialize player angle
+        turnSpeed: 0.09 // Decrease turning speed by 10%
     };
 
     bullets = [];
@@ -58,6 +60,16 @@ function update(deltaTime) {
         player.x += player.speed;
     }
 
+    // Rotate player left when Q key is pressed
+    if (keys["q"]) {
+        player.angle -= player.turnSpeed; // Rotate left
+    }
+
+    // Rotate player right when E key is pressed
+    if (keys["e"]) {
+        player.angle += player.turnSpeed; // Rotate right
+    }
+
     // Shoot bullets with cooldown
     bulletCooldown -= deltaTime; // Decrease cooldown time
     if (keys[" "] && bulletCooldown <= 0) {
@@ -73,7 +85,14 @@ function update(deltaTime) {
 
     // Update bullets position
     bullets.forEach(bullet => {
-        bullet.y -= bullet.speed;
+        // Calculate velocity components based on player's angle
+        const bulletSpeed = 8; // Bullet speed
+        const velocityX = Math.sin(player.angle) * bulletSpeed;
+        const velocityY = -Math.cos(player.angle) * bulletSpeed; // Negative due to canvas coordinate system
+
+        // Update bullet position based on velocity components
+        bullet.x += velocityX;
+        bullet.y += velocityY;
     });
 
     // Remove bullets that are out of bounds
@@ -140,13 +159,17 @@ function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw player triangle
+    ctx.save(); // Save current context state
+    ctx.translate(player.x + player.size / 2, player.y + player.size / 2); // Translate to player center
+    ctx.rotate(player.angle); // Rotate around player center
     ctx.fillStyle = "#fff";
     ctx.beginPath();
-    ctx.moveTo(player.x, player.y);
-    ctx.lineTo(player.x + player.size, player.y);
-    ctx.lineTo(player.x + player.size / 2, player.y - player.size);
+    ctx.moveTo(-player.size / 2, 0);
+    ctx.lineTo(player.size / 2, 0);
+    ctx.lineTo(0, -player.size);
     ctx.closePath();
     ctx.fill();
+    ctx.restore(); // Restore previous context state
 
     // Draw bullets with increased hitbox
     ctx.fillStyle = "#fff";
